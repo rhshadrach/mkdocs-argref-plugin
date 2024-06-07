@@ -55,6 +55,10 @@ Changelog:
 
 ## Changelog
 
+### 0.3.0 (2024-06-07)
+
+- Fixed bug where only one replacement would be made per page.
+
 ### 0.2.2 (2023-12-28)
 
 - Allow extended set for <num> and ignore ref style links, already linked items, and attr_list cases with '#' before the ref
