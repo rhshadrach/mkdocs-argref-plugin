@@ -34,12 +34,12 @@ classifiers=[
 ]
 
 [project.entry-points."mkdocs.plugins"]
-"autolink_references" = "autolink_references:AutolinkReference"
+"argref" = "argref:AutolinkReference"
 
 [project.urls]
-Documentation = "https://github.com/theskumar/autolink-references-mkdocs-plugin/tree/main#readme"
-Source = "https://github.com/theskumar/autolink-references-mkdocs-plugin"
-Tracker = "https://github.com/theskumar/autolink-references-mkdocs-plugin/issues"
+Documentation = "https://github.com/rhshadrach/mkdocs-argref-plugin/tree/main#readme"
+Source = "https://github.com/rhshadrach/mkdocs-argref-plugin"
+Tracker = "https://github.com/rhshadrach/mkdocs-argref-plugin/issues"
 
 [build-system]
 requires = ["hatchling"]
@@ -62,7 +62,7 @@ include = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/autolink_references"]
+packages = ["src/argref"]
 
 [tool.hatch.version]
-path = "src/autolink_references/__about__.py"
+path = "src/argref/__about__.py"
