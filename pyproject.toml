@@ -1,8 +1,9 @@
 [project]
-name = "autolink-references-mkdocs-plugin"
+name = "mkdocs-argref-plugin"
 description = "This plugin allows to configure your own autolink references for non-GitHub URLs."
 authors = [
-    { name = "Saurabh Kumar", email = "autolink-references-mkdocs-plugin@saurabh-kumar.com" }
+    { name = "Saurabh Kumar", email = "autolink-references-mkdocs-plugin@saurabh-kumar.com" },
+    { name = "Richard Shadrach", email = "rhshadrach@gmail.com" },
 ]
 readme = "README.md"
 license = "MIT"
@@ -14,6 +15,7 @@ keywords = [
     'autolinks',
     'mkdocs',
     'regex',
+    'github',
 ]
 
 classifiers=[

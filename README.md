@@ -1,26 +1,27 @@
-# Autolink References (MkDocs Plugin)
+# mkdocs-argref-plugin
 
-[![PyPI - Version](https://img.shields.io/pypi/v/autolink-references-mkdocs-plugin)](https://pypi.org/project/autolink-references-mkdocs-plugin/)
+[![PyPI - Version](https://img.shields.io/pypi/v/mkdocs-argref-plugin)](https://pypi.org/project/mkdocs-argref-plugin/)
 
 
 This [mkdocs plugin](http://www.mkdocs.org/user-guide/plugins/)
 look in each MkDocs article for the presence of a reference to tickets from issues
 trackers like Jira, Linear, etc and convert them to links that point to respective
-platforms:
+platforms. Unlike similar plugins, `argref` takes an argument that can be utilized
+in the URL.
 
 
 ## Getting started
 To install it, using `pip`:
 
 ```
-pip install autolink-references-mkdocs-plugin
+pip install mkdocs-argref-plugin
 ```
 
 Edit your `mkdocs.yml` file and add these few lines of code:
 
 ```yaml
 plugins:
-   - autolink_references:
+   - argref:
         autolinks:
             - reference_prefix: AF-
               target_url: https://linear.com/AF-<num>
@@ -66,4 +67,4 @@ Changelog:
 
 MIT
 
-Built with ❤️ by [Saurabh Kumar](https://saurabh-kumar.com?ref=autolink-references-mkdocs-plugin)
+Originally built with ❤️ by [Saurabh Kumar](https://saurabh-kumar.com?ref=autolink-references-mkdocs-plugin)
