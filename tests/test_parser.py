@@ -73,3 +73,12 @@ def test_with_attr_list():
     ref_prefix = "F-<num>"
     target_url = "http://gh/<num>"
     assert autolink(text, ref_prefix, target_url) == text
+
+
+def test_multi_replace():
+    ref_prefix = "TAG-<num>"
+    target_url = "http://gh/<num>"
+    markdown = "TAG-1 TAG-1 TAG-1"
+    expected = "[TAG-1](http://gh/1) [TAG-1](http://gh/1) [TAG-1](http://gh/1)"
+    result = autolink(markdown, ref_prefix, target_url)
+    assert result == expected
