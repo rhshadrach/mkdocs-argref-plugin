@@ -1,6 +1,6 @@
 import pytest
 
-from autolink_references.main import replace_autolink_references as autolink
+from argref.main import replace_autolink_references as autolink
 
 simple_replace = [
     ("TAG-<num>", "http://gh/<num>", "TAG-123", "[TAG-123](http://gh/123)"),

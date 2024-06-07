@@ -1,6 +1,8 @@
 MIT License
 
-Copyright (c) 2020 Saurabh Kumar
+Copyright for portions of project mkdocs-argref-plugin are held by [Saurabh Kumar, 2020] as
+part of project Autolink References. All other copyright for project mkdocs-argref-plugin
+are held by [Richard Shadrach, 2024].
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
