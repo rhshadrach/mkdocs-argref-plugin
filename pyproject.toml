@@ -1,6 +1,6 @@
 [project]
 name = "mkdocs-argref-plugin"
-description = "This plugin allows to configure your own autolink references for non-GitHub URLs."
+description = "This plugin allows to configure your own autolink references for URLs."
 authors = [
     { name = "Saurabh Kumar", email = "autolink-references-mkdocs-plugin@saurabh-kumar.com" },
     { name = "Richard Shadrach", email = "rhshadrach@gmail.com" },

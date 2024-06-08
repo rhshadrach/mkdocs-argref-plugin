@@ -2,11 +2,10 @@
 
 [![PyPI - Version](https://img.shields.io/pypi/v/mkdocs-argref-plugin)](https://pypi.org/project/mkdocs-argref-plugin/)
 
-
 This [mkdocs plugin](http://www.mkdocs.org/user-guide/plugins/)
-look in each MkDocs article for the presence of a reference to tickets from issues
-trackers like Jira, Linear, etc and convert them to links that point to respective
-platforms. Unlike similar plugins, `argref` takes an argument that can be utilized
+allows users to convert text such as `GHI-123` in their documentation to a 
+corresponding URL, e.g. `https://github.com/myproject/issues/123`. Unlike similar
+plugins, `argref` takes an argument for each reference that can be utilized
 in the URL.
 
 
@@ -23,8 +22,8 @@ Edit your `mkdocs.yml` file and add these few lines of code:
 plugins:
    - argref:
         autolinks:
-            - reference_prefix: AF-
-              target_url: https://linear.com/AF-<num>
+            - reference_prefix: GH-
+              target_url: https://github.com/myname/myproject/issues/<num>
             - reference_prefix: PROJ-
               target_url: https://jiracloud.com/PROJ-<num>
 ```
@@ -40,16 +39,16 @@ For example, you could edit the `docs/index.md` file and insert the ticket refer
 
 Changelog:
 
-- AF-100: add new feature.
+- GHI-100: add new feature.
 
 ````
 
-This will generate pre-processed to:
+This will be converted to:
 
 ```
 Changelog:
 
-- [AF-100](https://linear.com/AF-100): add new feature.
+- [GHI-100](https://github.com/myname/myproject/issues/100): add new feature.
 
 ```
 
