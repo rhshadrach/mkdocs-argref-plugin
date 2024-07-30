@@ -30,6 +30,15 @@ simple_replace = [
     ),
 ]
 
+complex_replace = [
+    (
+        "<some>-TAG-<num>-<ver>",
+        "http://foo.bar/but?<some>=<num>&ver=<ver>",
+        "file-TAG-123-XYZ",
+        "[TAG-123-XYZ](http://foo.bar/file?num=123&ver=XYZ)",
+    ),
+]
+
 ignore_already_linked = [
     (
         "TAG-<num>",
@@ -42,6 +51,21 @@ ignore_already_linked = [
         "http://gh/TAG-<num>",
         "[TAG-789](http://gh/TAG-789)",
         "[TAG-789](http://gh/TAG-789)",
+    ),
+    (
+        "TAG-<num>",
+        "http://gh/TAG-<num>",
+        "[see TAG-789](http://gh/TAG-789)",
+        "[see TAG-789](http://gh/TAG-789)",
+    ),
+]
+
+ignore_url_paths = [
+    (
+        "TAG-<num>",
+        "http://gh/<num>",
+        "[Go Here](http://gh/TAG-789) [Go There](http://gh/TAG-123)",
+        "[Go Here](http://gh/TAG-789) [Go There](http://gh/TAG-123)",
     ),
 ]
 
@@ -61,7 +85,7 @@ ignore_ref_links = [
 
 @pytest.mark.parametrize(
     "ref_prefix, target_url, test_input, expected",
-    simple_replace + ignore_already_linked + ignore_ref_links,
+    simple_replace + complex_replace + ignore_already_linked + ignore_url_paths + ignore_ref_links,
 )
 def test_parser(ref_prefix, target_url, test_input, expected):
     assert autolink(test_input, ref_prefix, target_url) == expected
