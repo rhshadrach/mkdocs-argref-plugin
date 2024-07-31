@@ -18,7 +18,9 @@ class MarkdownAutoLinker:
             reference = reference + "<num>"
 
         # make all variables like <...> in reference detectable
-        reference_pattern = re.sub(re.compile(r"<(\S+?)>"), r"(?P<\1>[-\\w]+)", reference)
+        reference_pattern = re.sub(
+            re.compile(r"<(\S+?)>"), r"(?P<\1>[-\\w]+)", reference
+        )
 
         # ensure original text is available
         return re.compile(
@@ -35,15 +37,17 @@ class MarkdownAutoLinker:
         return re.sub(r"\<(\S+?)\>", r"\\g<\1>", template_for_linked_reference)
 
     def markdown_has_reference(self):
-        return self.reference_pattern.match(self.markdown) is not None
+        return re.search(self.reference_pattern, self.markdown) is not None
 
     def replace_all_references(self):
-        self.markdown = re.sub(self.reference_pattern, self.link_replace_text, self.markdown)
+        self.markdown = re.sub(
+            self.reference_pattern, self.link_replace_text, self.markdown
+        )
 
 
 class LinkFilter:
-    link_pattern = re.compile(r"\[[!\]]+\]\([!\)]*\)")
-    placeholder = "___AUTOLINK_PLACEHOLDER_{i}___"
+    link_pattern = re.compile(r"\[[^\]]+\]\([^\)]*\)")
+    placeholder = "___AUTOLINK_PLACEHOLDER_{0}___"
 
     def __init__(self, autolinker):
         self.autolinker = autolinker
@@ -56,13 +60,17 @@ class LinkFilter:
                 break
 
             self.__links.append(match.string)
-            self.__markdown = self.__markdown[:match.start()] + self.placeholder.format(i=len(self.__links)) + self.autolinker.markdown[match.end():]
-
-            i += 1
+            self.autolinker.markdown = (
+                self.autolinker.markdown[: match.start()]
+                + self.placeholder.format(len(self.__links))
+                + self.autolinker.markdown[match.end() :]
+            )
 
     def recover_links(self):
         while len(self.__links) > 0:
-            self.__markdown.replace(self.placeholder.format(i==len(self.__links)), self.__links.pop())
+            self.autolinker.markdown = self.autolinker.markdown.replace(
+                self.placeholder.format(len(self.__links)), self.__links.pop()
+            )
 
     def __enter__(self):
         self.filter_links()
@@ -72,15 +80,19 @@ class LinkFilter:
         self.recover_links()
 
 
-def replace_autolink_references(markdown, ref_prefix, target_url):
+def replace_autolink_references(markdown, ref_prefix, target_url, filter_links):
     autolinker = MarkdownAutoLinker(markdown, ref_prefix, target_url)
-    filter = LinkFilter(autolinker)
 
     if not autolinker.markdown_has_reference():
         return autolinker.markdown
 
-    with filter as linker:
-        linker.replace_all_references()
+    if filter_links:
+        filter = LinkFilter(autolinker)
+        with filter as linker:
+            linker.replace_all_references()
+
+    else:
+        autolinker.replace_all_references()
 
     return autolinker.markdown
 
@@ -106,7 +118,6 @@ class AutoLinkOption(config_options.OptionallyRequired):
 
 
 class AutolinkReference(BasePlugin):
-
     config_scheme = (("autolinks", AutoLinkOption(required=True)),)
 
     def on_page_markdown(self, markdown, **kwargs):
@@ -121,7 +132,10 @@ class AutolinkReference(BasePlugin):
         """
         for autolink in self.config["autolinks"]:
             markdown = replace_autolink_references(
-                markdown, autolink["reference_prefix"], autolink["target_url"]
+                markdown,
+                autolink["reference_prefix"],
+                autolink["target_url"],
+                autolink.get("filter_links", True) is True,
             )
 
         return markdown

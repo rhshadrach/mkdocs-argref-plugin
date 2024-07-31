@@ -33,9 +33,9 @@ simple_replace = [
 complex_replace = [
     (
         "<some>-TAG-<num>-<ver>",
-        "http://foo.bar/but?<some>=<num>&ver=<ver>",
+        "http://foo.bar/<some>?num=<num>&ver=<ver>",
         "file-TAG-123-XYZ",
-        "[TAG-123-XYZ](http://foo.bar/file?num=123&ver=XYZ)",
+        "[file-TAG-123-XYZ](http://foo.bar/file?num=123&ver=XYZ)",
     ),
 ]
 
@@ -52,20 +52,35 @@ ignore_already_linked = [
         "[TAG-789](http://gh/TAG-789)",
         "[TAG-789](http://gh/TAG-789)",
     ),
+]
+
+ignore_url_paths_when_filter_activated = [
     (
         "TAG-<num>",
         "http://gh/TAG-<num>",
         "[see TAG-789](http://gh/TAG-789)",
         "[see TAG-789](http://gh/TAG-789)",
     ),
-]
-
-ignore_url_paths = [
     (
         "TAG-<num>",
         "http://gh/<num>",
         "[Go Here](http://gh/TAG-789) [Go There](http://gh/TAG-123)",
         "[Go Here](http://gh/TAG-789) [Go There](http://gh/TAG-123)",
+    ),
+]
+
+ignore_url_paths_when_filter_deactivated = [
+    (
+        "TAG-<num>",
+        "http://gh/TAG-<num>",
+        "[see TAG-789](http://gh/TAG-789)",
+        "[see [TAG-789](http://gh/TAG-789)](http://gh/TAG-789)",
+    ),
+    (
+        "TAG-<num>",
+        "http://gh/TAG-<num>",
+        "[Go Here](http://gh/abcTAG-789) [Go There](http://gh/?blub=TAG-123)",
+        "[Go Here](http://gh/abc[TAG-789](http://gh/TAG-789)) [Go There](http://gh/?blub=[TAG-123](http://gh/TAG-123))",
     ),
 ]
 
@@ -85,24 +100,45 @@ ignore_ref_links = [
 
 @pytest.mark.parametrize(
     "ref_prefix, target_url, test_input, expected",
-    simple_replace + complex_replace + ignore_already_linked + ignore_url_paths + ignore_ref_links,
+    simple_replace
+    + complex_replace
+    + ignore_already_linked
+    + ignore_ref_links,
 )
-def test_parser(ref_prefix, target_url, test_input, expected):
-    assert autolink(test_input, ref_prefix, target_url) == expected
+@pytest.mark.parametrize("filter_links", (True, False))
+def test_parser(ref_prefix, target_url, test_input, expected, filter_links):
+    assert autolink(test_input, ref_prefix, target_url, filter_links) == expected
+
+
+@pytest.mark.parametrize(
+    "ref_prefix, target_url, test_input, expected",
+    ignore_url_paths_when_filter_activated,
+)
+def test_activated_link_filter(ref_prefix, target_url, test_input, expected):
+    assert autolink(test_input, ref_prefix, target_url, True) == expected
+
+
+@pytest.mark.parametrize(
+    "ref_prefix, target_url, test_input, expected",
+    ignore_url_paths_when_filter_deactivated,
+)
+def test_deeactivated_link_filter(ref_prefix, target_url, test_input, expected):
+    assert autolink(test_input, ref_prefix, target_url, False) == expected
 
 
 # This test address #5. It currently only checks for '#' before the link
-def test_with_attr_list():
+@pytest.mark.parametrize("filter_links", (True, False))
+def test_with_attr_list(filter_links):
     text = "## Feature 1 { #F-001 .class-feature }"
     ref_prefix = "F-<num>"
     target_url = "http://gh/<num>"
-    assert autolink(text, ref_prefix, target_url) == text
+    assert autolink(text, ref_prefix, target_url, filter_links) == text
 
-
-def test_multi_replace():
+@pytest.mark.parametrize("filter_links", (True, False))
+def test_multi_replace(filter_links):
     ref_prefix = "TAG-<num>"
     target_url = "http://gh/<num>"
     markdown = "TAG-1 TAG-1 TAG-1"
     expected = "[TAG-1](http://gh/1) [TAG-1](http://gh/1) [TAG-1](http://gh/1)"
-    result = autolink(markdown, ref_prefix, target_url)
+    result = autolink(markdown, ref_prefix, target_url, filter_links)
     assert result == expected
