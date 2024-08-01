@@ -64,7 +64,7 @@ class AutoLinkWrapper:
     def __init__(self, markdown, link_filter_enabled):
         self.wrapped_markdown = AutoLinkWrapper.WrappedMarkdown(markdown)
         self.link_filter_enabled = link_filter_enabled
-        self.__links = []
+        self.links = []
 
     @property
     def markdown(self):
@@ -76,17 +76,17 @@ class AutoLinkWrapper:
             if match is None:
                 break
 
-            self.__links.append(match.group(0))
+            self.links.append(match.group(0))
             self.wrapped_markdown.content = (
                 self.wrapped_markdown.content[: match.start()]
-                + self.placeholder.format(len(self.__links))
+                + self.placeholder.format(len(self.links))
                 + self.wrapped_markdown.content[match.end() :]
             )
 
     def recover_links(self):
-        while len(self.__links) > 0:
+        while len(self.links) > 0:
             self.wrapped_markdown.content = self.wrapped_markdown.content.replace(
-                self.placeholder.format(len(self.__links)), self.__links.pop()
+                self.placeholder.format(len(self.links)), self.links.pop()
             )
 
     def __enter__(self):
