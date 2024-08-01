@@ -45,54 +45,67 @@ class MarkdownAutoLinker:
         )
 
 
-class LinkFilter:
-    link_pattern = re.compile(r"\[[^\]]+\]\([^\)]*\)")
+class AutoLinkWrapper:
+    link_pattern = re.compile(r"\[.+?\]\(.*?\)")
     placeholder = "___AUTOLINK_PLACEHOLDER_{0}___"
 
-    def __init__(self, autolinker):
-        self.autolinker = autolinker
+    class WrappedMarkdown:
+        def __init__(self, content):
+            self.__content = content
+
+        @property
+        def content(self):
+            return self.__content
+        
+        @content.setter
+        def content(self, content):
+            self.__content = content
+
+    def __init__(self, markdown, link_filter_enabled):
+        self.wrapped_markdown = AutoLinkWrapper.WrappedMarkdown(markdown)
+        self.link_filter_enabled = link_filter_enabled
         self.__links = []
+
+    @property
+    def markdown(self):
+        return self.wrapped_markdown.content
 
     def filter_links(self):
         while True:
-            match = self.link_pattern.match(self.autolinker.markdown)
+            match = re.search(self.link_pattern, self.wrapped_markdown.content)
             if match is None:
                 break
 
-            self.__links.append(match.string)
-            self.autolinker.markdown = (
-                self.autolinker.markdown[: match.start()]
+            self.__links.append(match.group(0))
+            self.wrapped_markdown.content = (
+                self.wrapped_markdown.content[: match.start()]
                 + self.placeholder.format(len(self.__links))
-                + self.autolinker.markdown[match.end() :]
+                + self.wrapped_markdown.content[match.end() :]
             )
 
     def recover_links(self):
         while len(self.__links) > 0:
-            self.autolinker.markdown = self.autolinker.markdown.replace(
+            self.wrapped_markdown.content = self.wrapped_markdown.content.replace(
                 self.placeholder.format(len(self.__links)), self.__links.pop()
             )
 
     def __enter__(self):
-        self.filter_links()
-        return self.autolinker
+        if self.link_filter_enabled:
+            self.filter_links()
+        return self.wrapped_markdown
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.recover_links()
+        if self.link_filter_enabled:
+            self.recover_links()
 
 
-def replace_autolink_references(markdown, ref_prefix, target_url, filter_links):
+def replace_autolink_references(markdown, ref_prefix, target_url):
     autolinker = MarkdownAutoLinker(markdown, ref_prefix, target_url)
 
     if not autolinker.markdown_has_reference():
         return autolinker.markdown
 
-    if filter_links:
-        filter = LinkFilter(autolinker)
-        with filter as linker:
-            linker.replace_all_references()
-
-    else:
-        autolinker.replace_all_references()
+    autolinker.replace_all_references()
 
     return autolinker.markdown
 
@@ -130,12 +143,15 @@ class AutolinkReference(BasePlugin):
         :param kwargs: Other parameters (won't be used here)
         :return: Modified markdown
         """
-        for autolink in self.config["autolinks"]:
-            markdown = replace_autolink_references(
-                markdown,
-                autolink["reference_prefix"],
-                autolink["target_url"],
-                autolink.get("filter_links", True) is True,
-            )
+        link_filter_enabled = autolink.get("filter_links", False) is True
+        wrapper = AutoLinkWrapper(markdown, link_filter_enabled)
 
-        return markdown
+        with wrapper as wrapped_markdown:
+            for autolink in self.config["autolinks"]:
+                wrapped_markdown.content = replace_autolink_references(
+                    wrapped_markdown.content,
+                    autolink["reference_prefix"],
+                    autolink["target_url"],
+                )
+
+        return wrapper.markdown
