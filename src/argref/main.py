@@ -4,7 +4,7 @@ from mkdocs.config import config_options
 
 
 class MarkdownAutoLinker:
-    original_tag = "original_text"
+    original_tag = "__ARGREF_ORIGINAL_TEXT__"
 
     def __init__(self, markdown, reference, target_url):
         self.markdown = markdown
