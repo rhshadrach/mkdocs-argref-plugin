@@ -21,13 +21,15 @@ Edit your `mkdocs.yml` file and add these few lines of code:
 ```yaml
 plugins:
    - argref:
+        filter_links: False  #default
         autolinks:
-            - reference_prefix: GH-
+            - reference_prefix: GH-<num>
               target_url: https://github.com/myname/myproject/issues/<num>
-            - reference_prefix: PROJ-
-              target_url: https://jiracloud.com/PROJ-<num>
+            - reference_prefix: COMPLEX-<num>-<ver>
+              target_url: https://jiracloud.com/COMPLEX-<num>?ver=<ver>
 ```
 
+- __filter_links__: Existing links may be broken due to unwanted replacement. Activate this parameter to avoid the issue. Caution: This may impact performance in large environments.
 - __reference_prefix__: This prefix appended by a number will generate a link any time it is found in a page.
 - __target_url__: The URL must contain `<num>` for the reference number.
 
