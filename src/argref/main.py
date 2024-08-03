@@ -9,6 +9,7 @@ log = logging.getLogger("mkdocs.plugins.argref")
 
 class MarkdownAutoLinker:
     original_tag = "__ARGREF_ORIGINAL_TEXT__"
+    variable_pattern = re.compile(r"<(\S+?)>")
 
     def __init__(self, markdown, reference, target_url):
         self.markdown = markdown
@@ -25,9 +26,7 @@ class MarkdownAutoLinker:
             reference = reference + "<num>"
 
         # make all variables like <...> in reference detectable
-        reference_pattern = re.sub(
-            re.compile(r"<(\S+?)>"), r"(?P<\1>[-\\w]+)", reference
-        )
+        reference_pattern = re.sub(cls.variable_pattern, r"(?P<\1>[-\\w]+)", reference)
 
         # ensure original text is available
         return re.compile(
@@ -38,10 +37,10 @@ class MarkdownAutoLinker:
     @classmethod
     def _get_link_replace_text(cls, target_url):
         # define template for markdown link
-        template_for_linked_reference = rf"[<{cls.original_tag}>](" + target_url + r")"
+        template_for_linked_reference = rf"[<{cls.original_tag}>]({target_url})"
 
         # make all variables like <...> in linked reference replacable
-        return re.sub(r"\<(\S+?)\>", r"\\g<\1>", template_for_linked_reference)
+        return re.sub(cls.variable_pattern, r"\\g<\1>", template_for_linked_reference)
 
     def markdown_has_reference(self):
         return re.search(self.reference_pattern, self.markdown) is not None
@@ -109,10 +108,8 @@ class AutoLinkWrapper:
 def replace_autolink_references(markdown, ref_prefix, target_url):
     autolinker = MarkdownAutoLinker(markdown, ref_prefix, target_url)
 
-    if not autolinker.markdown_has_reference():
-        return autolinker.markdown
-
-    autolinker.replace_all_references()
+    if autolinker.markdown_has_reference():
+        autolinker.replace_all_references()
 
     return autolinker.markdown
 
