@@ -99,6 +99,14 @@ ignore_ref_links = [
 ]
 
 
+def test_deprecated_warning(caplog):
+    test_input = "GH-123"
+    ref_prefix = "GH-"
+    target_url = "http://gh/<num>"
+    autolink(test_input, ref_prefix, target_url)
+    assert "the use of prefixes without variable is deprecated and support will be dropped in an upcoming release: GH-" in caplog.text
+
+
 def test_wrapper_with_enabled_link_filter():
     test_input = "[123](abc) [456](def) [789](ghi)"
     wrapper = AutoLinkWrapper(test_input, True)

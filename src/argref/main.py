@@ -1,6 +1,10 @@
+import logging
 import re
 from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
+
+
+log = logging.getLogger("mkdocs.plugins.argref")
 
 
 class MarkdownAutoLinker:
@@ -15,6 +19,7 @@ class MarkdownAutoLinker:
     def _get_reference_pattern(cls, reference):
         # ensure default <num> exists
         if "<num>" not in reference:
+            log.warning(f"the use of prefixes without variable is deprecated and support will be dropped in an upcoming release: {reference}")
             reference = reference + "<num>"
 
         # make all variables like <...> in reference detectable

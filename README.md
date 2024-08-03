@@ -33,6 +33,8 @@ plugins:
 - __reference_prefix__: This prefix appended by a number will generate a link any time it is found in a page.
 - __target_url__: The URL must contain `<num>` for the reference number.
 
+> ⚠️ The use of prefixes without variable (like `GH-`) is deprecated and support will be dropped in an upcoming release.
+
 ### An example
 
 For example, you could edit the `docs/index.md` file and insert the ticket references like this:
