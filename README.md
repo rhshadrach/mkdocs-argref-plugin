@@ -31,7 +31,7 @@ plugins:
 
 - __filter_links__: Existing links may be broken due to unwanted replacement. Activate this parameter to avoid the issue. Caution: This may impact performance in large environments.
 - __reference_prefix__: This prefix appended by a number will generate a link any time it is found in a page.
-- __target_url__: The URL must contain `<num>` for the reference number.
+- __target_url__: The URL must contain at least one variable from `reference_prefix` (default: `<num>`).
 
 > ⚠️ The use of prefixes without variable (like `GH-`) is deprecated and support will be dropped in an upcoming release.
 
