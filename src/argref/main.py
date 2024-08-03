@@ -132,7 +132,7 @@ class AutoLinkOption(config_options.OptionallyRequired):
             variables = re.findall(MarkdownAutoLinker.variable_pattern, autolink["reference_prefix"])
             variables.append("<num>")  # FIXME: remove in next version
             if not any(v in autolink["target_url"] for v in variables):
-                raise config_options.ValidationError("At least variable must be used in 'target_url'")
+                raise config_options.ValidationError("At least one variable must be used in 'target_url'")
 
         return values
 

@@ -121,7 +121,7 @@ def test_validation_of_missing_variable_in_target_url():
     ]
     with pytest.raises(config_options.ValidationError) as exc_info:
         AutoLinkOption().run_validation(values)
-    assert exc_info.value.args[0] == "At least variable must be used in 'target_url'"
+    assert exc_info.value.args[0] == "At least one variable must be used in 'target_url'"
 
 
 def test_validation_of_at_least_one_variable_in_prefix_found_in_target_url():
