@@ -104,14 +104,20 @@ def test_deprecated_warning(caplog):
     ref_prefix = "GH-"
     target_url = "http://gh/<num>"
     autolink(test_input, ref_prefix, target_url)
-    assert "the use of prefixes without variable is deprecated and support will be dropped in an upcoming release: GH-" in caplog.text
+    assert (
+        "the use of prefixes without variable is deprecated and support will be dropped in an upcoming release: GH-"
+        in caplog.text
+    )
 
 
 def test_wrapper_with_enabled_link_filter():
     test_input = "[123](abc) [456](def) [789](ghi)"
     wrapper = AutoLinkWrapper(test_input, True)
     with wrapper as wrapped_markdown:
-        assert wrapped_markdown.content == "___AUTOLINK_PLACEHOLDER_1___ ___AUTOLINK_PLACEHOLDER_2___ ___AUTOLINK_PLACEHOLDER_3___"
+        assert (
+            wrapped_markdown.content
+            == "___AUTOLINK_PLACEHOLDER_1___ ___AUTOLINK_PLACEHOLDER_2___ ___AUTOLINK_PLACEHOLDER_3___"
+        )
 
     assert wrapped_markdown.content == test_input
 
@@ -125,16 +131,15 @@ def test_wrapper_with_disabled_link_filter():
 
 @pytest.mark.parametrize(
     "ref_prefix, target_url, test_input, expected",
-    simple_replace
-    + complex_replace
-    + ignore_already_linked
-    + ignore_ref_links,
+    simple_replace + complex_replace + ignore_already_linked + ignore_ref_links,
 )
 @pytest.mark.parametrize("filter_links", (True, False))
 def test_parser(ref_prefix, target_url, test_input, expected, filter_links):
     wrapper = AutoLinkWrapper(test_input, filter_links)
     with wrapper as wrapped_mackdown:
-        wrapped_mackdown.content = autolink(wrapped_mackdown.content, ref_prefix, target_url)
+        wrapped_mackdown.content = autolink(
+            wrapped_mackdown.content, ref_prefix, target_url
+        )
     assert wrapper.markdown == expected
 
 
@@ -145,7 +150,9 @@ def test_parser(ref_prefix, target_url, test_input, expected, filter_links):
 def test_activated_link_filter(ref_prefix, target_url, test_input, expected):
     wrapper = AutoLinkWrapper(test_input, True)
     with wrapper as wrapped_mackdown:
-        wrapped_mackdown.content = autolink(wrapped_mackdown.content, ref_prefix, target_url)
+        wrapped_mackdown.content = autolink(
+            wrapped_mackdown.content, ref_prefix, target_url
+        )
     assert wrapper.markdown == expected
 
 
@@ -156,7 +163,9 @@ def test_activated_link_filter(ref_prefix, target_url, test_input, expected):
 def test_deactivated_link_filter(ref_prefix, target_url, test_input, expected):
     wrapper = AutoLinkWrapper(test_input, False)
     with wrapper as wrapped_mackdown:
-        wrapped_mackdown.content = autolink(wrapped_mackdown.content, ref_prefix, target_url)
+        wrapped_mackdown.content = autolink(
+            wrapped_mackdown.content, ref_prefix, target_url
+        )
     assert wrapper.markdown == expected
 
 
@@ -168,7 +177,9 @@ def test_with_attr_list(filter_links):
     target_url = "http://gh/<num>"
     wrapper = AutoLinkWrapper(text, False)
     with wrapper as wrapped_mackdown:
-        wrapped_mackdown.content = autolink(wrapped_mackdown.content, ref_prefix, target_url)
+        wrapped_mackdown.content = autolink(
+            wrapped_mackdown.content, ref_prefix, target_url
+        )
     assert wrapper.markdown == text
 
 
@@ -180,5 +191,7 @@ def test_multi_replace(filter_links):
     expected = "[TAG-1](http://gh/1) [TAG-1](http://gh/1) [TAG-1](http://gh/1)"
     wrapper = AutoLinkWrapper(markdown, False)
     with wrapper as wrapped_mackdown:
-        wrapped_mackdown.content = autolink(wrapped_mackdown.content, ref_prefix, target_url)
+        wrapped_mackdown.content = autolink(
+            wrapped_mackdown.content, ref_prefix, target_url
+        )
     assert wrapper.markdown == expected

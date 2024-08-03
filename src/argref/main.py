@@ -19,7 +19,9 @@ class MarkdownAutoLinker:
     def _get_reference_pattern(cls, reference):
         # ensure default <num> exists
         if "<num>" not in reference:
-            log.warning(f"the use of prefixes without variable is deprecated and support will be dropped in an upcoming release: {reference}")
+            log.warning(
+                f"the use of prefixes without variable is deprecated and support will be dropped in an upcoming release: {reference}"
+            )
             reference = reference + "<num>"
 
         # make all variables like <...> in reference detectable
@@ -61,7 +63,7 @@ class AutoLinkWrapper:
         @property
         def content(self):
             return self.__content
-        
+
         @content.setter
         def content(self, content):
             self.__content = content
