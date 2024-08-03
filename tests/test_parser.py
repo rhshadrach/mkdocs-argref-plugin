@@ -1,7 +1,9 @@
 import pytest
 
-from argref.main import AutoLinkWrapper
+from argref.main import AutoLinkWrapper, AutoLinkOption
 from argref.main import replace_autolink_references as autolink
+
+from mkdocs.config import config_options
 
 simple_replace = [
     ("TAG-<num>", "http://gh/<num>", "TAG-123", "[TAG-123](http://gh/123)"),
@@ -108,6 +110,28 @@ def test_deprecated_warning(caplog):
         "the use of prefixes without variable is deprecated and support will be dropped in an upcoming release: GH-"
         in caplog.text
     )
+
+
+def test_validation_of_missing_variable_in_target_url():
+    values = [
+        {
+            "reference_prefix": "GH-",
+            "target_url": "http://gh/TAG-",
+        },
+    ]
+    with pytest.raises(config_options.ValidationError) as exc_info:
+        AutoLinkOption().run_validation(values)
+    assert exc_info.value.args[0] == "At least variable must be used in 'target_url'"
+
+
+def test_validation_of_at_least_one_variable_in_prefix_found_in_target_url():
+    values = [
+        {
+            "reference_prefix": "GH-<num>",
+            "target_url": "http://gh/TAG-<num>",
+        },
+    ]
+    AutoLinkOption().run_validation(values)
 
 
 def test_wrapper_with_enabled_link_filter():

@@ -9,7 +9,7 @@ log = logging.getLogger("mkdocs.plugins.argref")
 
 class MarkdownAutoLinker:
     original_tag = "__ARGREF_ORIGINAL_TEXT__"
-    variable_pattern = re.compile(r"<(\S+?)>")
+    variable_pattern = re.compile(r"(<\S+?>)")
 
     def __init__(self, markdown, reference, target_url):
         self.markdown = markdown
@@ -19,6 +19,7 @@ class MarkdownAutoLinker:
     @classmethod
     def _get_reference_pattern(cls, reference):
         # ensure default <num> exists
+        # FIXME: remove in next version
         if "<num>" not in reference:
             log.warning(
                 f"the use of prefixes without variable is deprecated and support will be dropped in an upcoming release: {reference}"
@@ -26,7 +27,7 @@ class MarkdownAutoLinker:
             reference = reference + "<num>"
 
         # make all variables like <...> in reference detectable
-        reference_pattern = re.sub(cls.variable_pattern, r"(?P<\1>[-\\w]+)", reference)
+        reference_pattern = re.sub(cls.variable_pattern, r"(?P\1[-\\w]+)", reference)
 
         # ensure original text is available
         return re.compile(
@@ -40,7 +41,7 @@ class MarkdownAutoLinker:
         template_for_linked_reference = rf"[<{cls.original_tag}>]({target_url})"
 
         # make all variables like <...> in linked reference replacable
-        return re.sub(cls.variable_pattern, r"\\g<\1>", template_for_linked_reference)
+        return re.sub(cls.variable_pattern, r"\\g\1", template_for_linked_reference)
 
     def markdown_has_reference(self):
         return re.search(self.reference_pattern, self.markdown) is not None
@@ -128,8 +129,10 @@ class AutoLinkOption(config_options.OptionallyRequired):
                 raise config_options.ValidationError(
                     "Expected a 'target_url' in autolinks."
                 )
-            if "<num>" not in autolink["target_url"]:
-                raise config_options.ValidationError("Missing '<num>' in 'target_url'.")
+            variables = re.findall(MarkdownAutoLinker.variable_pattern, autolink["reference_prefix"])
+            variables.append("<num>")  # FIXME: remove in next version
+            if not any(v in autolink["target_url"] for v in variables):
+                raise config_options.ValidationError("At least variable must be used in 'target_url'")
 
         return values
 
