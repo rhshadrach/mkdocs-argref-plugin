@@ -150,7 +150,7 @@ class AutolinkReference(BasePlugin):
         :param kwargs: Other parameters (won't be used here)
         :return: Modified markdown
         """
-        link_filter_enabled = autolink.get("filter_links", False) is True
+        link_filter_enabled = self.config.get("filter_links", False) is True
         wrapper = AutoLinkWrapper(markdown, link_filter_enabled)
 
         with wrapper as wrapped_markdown:
