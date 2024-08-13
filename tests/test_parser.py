@@ -12,7 +12,6 @@ simple_replace = [
     ("TAG-<num>", "http://gh/<num>", "x TAG-123 y", "x [TAG-123](http://gh/123) y"),
     ("TAG-<num>", "http://gh/<num>", "x TAG-123 y", "x [TAG-123](http://gh/123) y"),
     ("TAG-<num>", "http://gh/TAG-<num>", "(TAG-123)", "([TAG-123](http://gh/TAG-123))"),
-    ("TAG-", "http://forgot-num/<num>", "TAG-543", "[TAG-543](http://forgot-num/543)"),
     (
         "TAG-<num>",
         "http://gh/TAG-<num>",
@@ -101,17 +100,6 @@ ignore_ref_links = [
 ]
 
 
-def test_deprecated_warning(caplog):
-    test_input = "GH-123"
-    ref_prefix = "GH-"
-    target_url = "http://gh/<num>"
-    autolink(test_input, ref_prefix, target_url)
-    assert (
-        "the use of prefixes without variable is deprecated and support will be dropped in an upcoming release: GH-"
-        in caplog.text
-    )
-
-
 def test_validation_of_missing_variable_in_target_url():
     values = [
         {
@@ -121,7 +109,7 @@ def test_validation_of_missing_variable_in_target_url():
     ]
     with pytest.raises(config_options.ValidationError) as exc_info:
         AutoLinkOption().run_validation(values)
-    assert exc_info.value.args[0] == "At least one variable must be used in 'target_url'"
+    assert exc_info.value.args[0] == "All variables must be used in 'target_url'"
 
 
 def test_validation_of_at_least_one_variable_in_prefix_found_in_target_url():

@@ -6,69 +6,61 @@ from mkdocs.config import config_options
 
 log = logging.getLogger("mkdocs.plugins.argref")
 
+# Regex capture group marker used for the full reference, e.g. `GH-123`
+FULL_REF_TAG = "__ARGREF_ORIGINAL_TEXT__"
+# Pattern to identify variables, e.g. `<num>`
+VARIABLE_PATTERN = re.compile(r"(<\S+?>)")
+# Pattern to identify links, e.g. `[link text](https://github.com/)`
+LINK_PATTERN = re.compile(r"\[.+?\]\(.*?\)")
+# Sentile value to avoid replacing links
+LINK_PLACEHOLDER = "___AUTOLINK_PLACEHOLDER_{0}___"
+
 
 class MarkdownAutoLinker:
-    original_tag = "__ARGREF_ORIGINAL_TEXT__"
-    variable_pattern = re.compile(r"(<\S+?>)")
-
-    def __init__(self, markdown, reference, target_url):
-        self.markdown = markdown
+    def __init__(self, reference, target_url):
         self.reference_pattern = self._get_reference_pattern(reference)
         self.link_replace_text = self._get_link_replace_text(target_url)
 
     @classmethod
     def _get_reference_pattern(cls, reference):
-        # ensure default <num> exists
-        # FIXME: remove in next version
-        if "<num>" not in reference:
-            log.warning(
-                f"the use of prefixes without variable is deprecated and support will be dropped in an upcoming release: {reference}"
-            )
-            reference = reference + "<num>"
+        # Add named capture groups for each variable.
+        reference_pattern = re.sub(VARIABLE_PATTERN, r"(?P\1[-\\w]+)", reference)
 
-        # make all variables like <...> in reference detectable
-        reference_pattern = re.sub(cls.variable_pattern, r"(?P\1[-\\w]+)", reference)
-
-        # ensure original text is available
+        # Combine with named capture group for the full reference.
         return re.compile(
-            rf"(?<![#\[/])(?P<{cls.original_tag}>" + reference_pattern + r")",
+            rf"(?<![#\[/])(?P<{FULL_REF_TAG}>" + reference_pattern + r")",
             re.IGNORECASE,
         )
 
     @classmethod
     def _get_link_replace_text(cls, target_url):
-        # define template for markdown link
-        template_for_linked_reference = rf"[<{cls.original_tag}>]({target_url})"
+        template_for_linked_reference = rf"[<{FULL_REF_TAG}>]({target_url})"
 
-        # make all variables like <...> in linked reference replacable
-        return re.sub(cls.variable_pattern, r"\\g\1", template_for_linked_reference)
+        # Prefix variables with `\\g` to use named capture groups
+        return re.sub(VARIABLE_PATTERN, r"\\g\1", template_for_linked_reference)
 
-    def markdown_has_reference(self):
-        return re.search(self.reference_pattern, self.markdown) is not None
+    def has_reference(self, markdown):
+        return re.search(self.reference_pattern, markdown) is not None
 
-    def replace_all_references(self):
-        self.markdown = re.sub(
-            self.reference_pattern, self.link_replace_text, self.markdown
+    def replace_all_references(self, markdown):
+        return re.sub(
+            self.reference_pattern, self.link_replace_text, markdown
         )
 
 
 class AutoLinkWrapper:
-    link_pattern = re.compile(r"\[.+?\]\(.*?\)")
-    placeholder = "___AUTOLINK_PLACEHOLDER_{0}___"
-
     class WrappedMarkdown:
         def __init__(self, content):
-            self.__content = content
-
-        @property
-        def content(self):
-            return self.__content
-
-        @content.setter
-        def content(self, content):
-            self.__content = content
+            """Container for markdown."""
+            self.content = content
 
     def __init__(self, markdown, link_filter_enabled):
+        """Possibly replace links with placeholders so they are not substituted.
+
+        Args:
+            markdown: Markdown content.
+            link_filter_enabled: Whether to replace links with placeholders.
+        """
         self.wrapped_markdown = AutoLinkWrapper.WrappedMarkdown(markdown)
         self.link_filter_enabled = link_filter_enabled
         self.links = []
@@ -78,22 +70,22 @@ class AutoLinkWrapper:
         return self.wrapped_markdown.content
 
     def filter_links(self):
+        content = self.wrapped_markdown.content
+        buf = ""
         while True:
-            match = re.search(self.link_pattern, self.wrapped_markdown.content)
+            match = re.search(LINK_PATTERN, content)
             if match is None:
+                buf += content
                 break
-
             self.links.append(match.group(0))
-            self.wrapped_markdown.content = (
-                self.wrapped_markdown.content[: match.start()]
-                + self.placeholder.format(len(self.links))
-                + self.wrapped_markdown.content[match.end() :]
-            )
+            buf += content[: match.start()] + LINK_PLACEHOLDER.format(len(self.links))
+            content = content[match.end(): ]
+        self.wrapped_markdown.content = buf
 
     def recover_links(self):
         while len(self.links) > 0:
             self.wrapped_markdown.content = self.wrapped_markdown.content.replace(
-                self.placeholder.format(len(self.links)), self.links.pop()
+                LINK_PLACEHOLDER.format(len(self.links)), self.links.pop()
             )
 
     def __enter__(self):
@@ -107,19 +99,16 @@ class AutoLinkWrapper:
 
 
 def replace_autolink_references(markdown, ref_prefix, target_url):
-    autolinker = MarkdownAutoLinker(markdown, ref_prefix, target_url)
-
-    if autolinker.markdown_has_reference():
-        autolinker.replace_all_references()
-
-    return autolinker.markdown
+    autolinker = MarkdownAutoLinker(ref_prefix, target_url)
+    if autolinker.has_reference(markdown):
+        markdown = autolinker.replace_all_references(markdown)
+    return markdown
 
 
 class AutoLinkOption(config_options.OptionallyRequired):
     def run_validation(self, values):
         if not isinstance(values, list):
             raise config_options.ValidationError("Expected a list of autolinks.")
-
         for autolink in values:
             if "reference_prefix" not in autolink:
                 raise config_options.ValidationError(
@@ -129,11 +118,12 @@ class AutoLinkOption(config_options.OptionallyRequired):
                 raise config_options.ValidationError(
                     "Expected a 'target_url' in autolinks."
                 )
-            variables = re.findall(MarkdownAutoLinker.variable_pattern, autolink["reference_prefix"])
-            variables.append("<num>")  # FIXME: remove in next version
-            if not any(v in autolink["target_url"] for v in variables):
-                raise config_options.ValidationError("At least one variable must be used in 'target_url'")
-
+            variables = re.findall(VARIABLE_PATTERN, autolink["reference_prefix"])
+            if len(variables) == 0:
+                variables = ["<num>"]
+                autolink["reference_prefix"] += "<num>"
+            if not all(v in autolink["target_url"] for v in variables):
+                raise config_options.ValidationError("All variables must be used in 'target_url'")
         return values
 
 

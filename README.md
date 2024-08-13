@@ -29,11 +29,9 @@ plugins:
               target_url: https://jiracloud.com/COMPLEX-<num>?ver=<ver>
 ```
 
-- __filter_links__: Existing links may be broken due to unwanted replacement. Activate this parameter to avoid the issue. Caution: This may impact performance in large environments.
-- __reference_prefix__: This prefix appended by a number will generate a link any time it is found in a page.
-- __target_url__: The URL must contain at least one variable from `reference_prefix` (default: `<num>`).
-
-> ⚠️ The use of prefixes without variable (like `GH-`) is deprecated and support will be dropped in an upcoming release.
+- __filter_links__: When `True`, will not make replacements within existing markdown links. Caution: This may impact performance in large environments.
+- __reference_prefix__: This prefix appended by a number will generate a link any time it is found in a page. When no variable is present, will append `<num>` as the variable.
+- __target_url__: The URL must contain at least one variable from `reference_prefix`. When no variable is present in `reference_prefix`, will default to `<num>`.
 
 ### An example
 
@@ -57,6 +55,10 @@ Changelog:
 ```
 
 ## Changelog
+
+### 0.4.0 (2024-08-13)
+
+- Added ability to use multiple references for each link.
 
 ### 0.3.0 (2024-06-07)
 
