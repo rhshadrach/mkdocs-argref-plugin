@@ -12,7 +12,7 @@ FULL_REF_TAG = "__ARGREF_ORIGINAL_TEXT__"
 VARIABLE_PATTERN = re.compile(r"(<\S+?>)")
 # Pattern to identify links, e.g. `[link text](https://github.com/)`
 LINK_PATTERN = re.compile(r"\[.+?\]\(.*?\)")
-# Sentile value to avoid replacing links
+# Sentinel value template to avoid replacing links
 LINK_PLACEHOLDER = "___AUTOLINK_PLACEHOLDER_{0}___"
 
 
