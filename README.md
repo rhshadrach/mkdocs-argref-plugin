@@ -29,9 +29,9 @@ plugins:
               target_url: https://jiracloud.com/COMPLEX-<num>?ver=<ver>
 ```
 
-- __filter_links__: When `True`, will not make replacements within existing markdown links. Caution: This may impact performance in large environments.
+- __filter_links__: When `True`, will not make replacements within existing markdown links. Caution: This may impact performance in large environments. Defaults to `False`.
 - __reference_prefix__: This prefix appended by a number will generate a link any time it is found in a page. When no variable is present, will append `<num>` as the variable.
-- __target_url__: The URL must contain at least one variable from `reference_prefix`. When no variable is present in `reference_prefix`, will default to `<num>`.
+- __target_url__: The URL must contain all variables from `reference_prefix`.
 
 ### An example
 
