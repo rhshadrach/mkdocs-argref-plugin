@@ -25,8 +25,8 @@ plugins:
         autolinks:
             - reference_prefix: GH-<num>
               target_url: https://github.com/myname/myproject/issues/<num>
-            - reference_prefix: COMPLEX-<num>-<ver>
-              target_url: https://jiracloud.com/COMPLEX-<num>?ver=<ver>
+            - reference_prefix: JIRA-<num>-<ver>
+              target_url: https://jiracloud.com/myproject-<num>?ver=<ver>
 ```
 
 - __filter_links__: Existing links may be broken due to unwanted replacement. Activate this parameter to avoid the issue. Caution: This may impact performance in large environments.
@@ -43,7 +43,8 @@ For example, you could edit the `docs/index.md` file and insert the ticket refer
 
 Changelog:
 
-- GHI-100: add new feature.
+- GHI-100: Add new feature.
+- JIRA-231-XYZ: Fix bug.
 
 ````
 
@@ -52,7 +53,8 @@ This will be converted to:
 ```
 Changelog:
 
-- [GHI-100](https://github.com/myname/myproject/issues/100): add new feature.
+- [GHI-100](https://github.com/myname/myproject/issues/100): Add new feature.
+- [JIRA-231-XYZ](https://jiracloud.com/myproject-231?ver=XYZ): Fix bug.
 
 ```
 
