@@ -146,8 +146,8 @@ class AutolinkReference(BasePlugin):
         link_filter_enabled = self.config.get("filter_links", False) is True
         wrapper = AutoLinkWrapper(markdown, link_filter_enabled)
 
-        with wrapper as wrapped_markdown:
-            for autolink in self.config["autolinks"]:
+        for autolink in self.config["autolinks"]:
+            with wrapper as wrapped_markdown:
                 wrapped_markdown.content = replace_autolink_references(
                     wrapped_markdown.content,
                     autolink["reference_prefix"],
