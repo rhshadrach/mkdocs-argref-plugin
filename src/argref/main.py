@@ -128,7 +128,10 @@ class AutoLinkOption(config_options.OptionallyRequired):
 
 
 class AutolinkReference(BasePlugin):
-    config_scheme = (("autolinks", AutoLinkOption(required=True)),)
+    config_scheme = (
+        ("autolinks", AutoLinkOption(required=True)),
+        ("filter_links", config_options.Type(bool, default=False)),
+    )
 
     def on_page_markdown(self, markdown, **kwargs):
         """
