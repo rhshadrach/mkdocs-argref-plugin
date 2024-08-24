@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
+from typing import ClassVar
 
 from mkdocs.config import config_options
 from mkdocs.plugins import BasePlugin
@@ -47,14 +48,12 @@ class MarkdownAutoLinker:
     def replace_all_references(self, markdown, skip_links: bool):
         if skip_links:
             pieces = re.split(LINK_PATTERN, markdown)
-            urls = re.findall(LINK_PATTERN, markdown) + [""]
+            urls = [*re.findall(LINK_PATTERN, markdown), ""]
             buf = []
             for piece, url in zip(pieces, urls):
                 buf.append(re.sub(self.find_pattern, self.replace_pattern, piece) + url)
             result = "".join(buf)
         else:
-            print(markdown)
-            print(self.find_pattern)
             result = re.sub(self.find_pattern, self.replace_pattern, markdown)
         return result
 
@@ -99,7 +98,7 @@ class AutolinkReference(BasePlugin):
         ("autolinks", AutoLinkOption(required=True)),
         ("filter_links", config_options.Type(bool, default=False)),
     )
-    autolinks: list[tuple[str, str]] = []
+    autolinks: ClassVar[list[tuple[str, str]]] = []
 
     def on_pre_build(self, config, **kwargs) -> None:
         for autolink in self.config["autolinks"]:
@@ -108,8 +107,7 @@ class AutolinkReference(BasePlugin):
             )
 
     def on_page_markdown(self, markdown, **kwargs):
-        """
-        Takes an article written in markdown and looks for the
+        """Takes an article written in markdown and looks for the
         presence of a ticket reference and replaces it with autual link
         to the ticket.
 
