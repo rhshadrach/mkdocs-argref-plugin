@@ -1,7 +1,6 @@
 import pytest
 
-from argref.main import AutoLinkWrapper, AutoLinkOption
-from argref.main import replace_autolink_references as autolink
+from argref.main import AutoLinkOption, replace_autolink_references as autolink
 
 from mkdocs.config import config_options
 
@@ -122,37 +121,14 @@ def test_validation_of_at_least_one_variable_in_prefix_found_in_target_url():
     AutoLinkOption().run_validation(values)
 
 
-def test_wrapper_with_enabled_link_filter():
-    test_input = "[123](abc) [456](def) [789](ghi)"
-    wrapper = AutoLinkWrapper(test_input, True)
-    with wrapper as wrapped_markdown:
-        assert (
-            wrapped_markdown.content
-            == "___AUTOLINK_PLACEHOLDER_1___ ___AUTOLINK_PLACEHOLDER_2___ ___AUTOLINK_PLACEHOLDER_3___"
-        )
-
-    assert wrapped_markdown.content == test_input
-
-
-def test_wrapper_with_disabled_link_filter():
-    test_input = "[123](abc) [456](def) [789](ghi)"
-    wrapper = AutoLinkWrapper(test_input, False)
-    with wrapper as wrapped_markdown:
-        assert wrapped_markdown.content == test_input
-
-
 @pytest.mark.parametrize(
     "ref_prefix, target_url, test_input, expected",
     simple_replace + complex_replace + ignore_already_linked + ignore_ref_links,
 )
 @pytest.mark.parametrize("filter_links", (True, False))
 def test_parser(ref_prefix, target_url, test_input, expected, filter_links):
-    wrapper = AutoLinkWrapper(test_input, filter_links)
-    with wrapper as wrapped_mackdown:
-        wrapped_mackdown.content = autolink(
-            wrapped_mackdown.content, ref_prefix, target_url
-        )
-    assert wrapper.markdown == expected
+    result = autolink(test_input, ref_prefix, target_url, skip_links=True)
+    assert result == expected
 
 
 @pytest.mark.parametrize(
@@ -160,12 +136,8 @@ def test_parser(ref_prefix, target_url, test_input, expected, filter_links):
     ignore_url_paths_when_filter_activated,
 )
 def test_activated_link_filter(ref_prefix, target_url, test_input, expected):
-    wrapper = AutoLinkWrapper(test_input, True)
-    with wrapper as wrapped_mackdown:
-        wrapped_mackdown.content = autolink(
-            wrapped_mackdown.content, ref_prefix, target_url
-        )
-    assert wrapper.markdown == expected
+    result = autolink(test_input, ref_prefix, target_url, skip_links=True)
+    assert result == expected
 
 
 @pytest.mark.parametrize(
@@ -173,37 +145,25 @@ def test_activated_link_filter(ref_prefix, target_url, test_input, expected):
     ignore_url_paths_when_filter_deactivated,
 )
 def test_deactivated_link_filter(ref_prefix, target_url, test_input, expected):
-    wrapper = AutoLinkWrapper(test_input, False)
-    with wrapper as wrapped_mackdown:
-        wrapped_mackdown.content = autolink(
-            wrapped_mackdown.content, ref_prefix, target_url
-        )
-    assert wrapper.markdown == expected
+    result = autolink(test_input, ref_prefix, target_url, skip_links=False)
+    assert result == expected
 
 
-# This test address #5. It currently only checks for '#' before the link
-@pytest.mark.parametrize("filter_links", (True, False))
-def test_with_attr_list(filter_links):
-    text = "## Feature 1 { #F-001 .class-feature }"
+@pytest.mark.parametrize("skip_links", (True, False))
+def test_with_attr_list(skip_links):
+    markdown = "## Feature 1 { #F-001 .class-feature }"
+    expected = "## Feature 1 { #F-001 .class-feature }"
     ref_prefix = "F-<num>"
     target_url = "http://gh/<num>"
-    wrapper = AutoLinkWrapper(text, False)
-    with wrapper as wrapped_mackdown:
-        wrapped_mackdown.content = autolink(
-            wrapped_mackdown.content, ref_prefix, target_url
-        )
-    assert wrapper.markdown == text
+    result = autolink(markdown, ref_prefix, target_url, skip_links=skip_links)
+    assert result == expected
 
 
-@pytest.mark.parametrize("filter_links", (True, False))
-def test_multi_replace(filter_links):
+@pytest.mark.parametrize("skip_links", (True, False))
+def test_multi_replace(skip_links):
     ref_prefix = "TAG-<num>"
     target_url = "http://gh/<num>"
     markdown = "TAG-1 TAG-1 TAG-1"
     expected = "[TAG-1](http://gh/1) [TAG-1](http://gh/1) [TAG-1](http://gh/1)"
-    wrapper = AutoLinkWrapper(markdown, False)
-    with wrapper as wrapped_mackdown:
-        wrapped_mackdown.content = autolink(
-            wrapped_mackdown.content, ref_prefix, target_url
-        )
-    assert wrapper.markdown == expected
+    result = autolink(markdown, ref_prefix, target_url, skip_links=skip_links)
+    assert result == expected
