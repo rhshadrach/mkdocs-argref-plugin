@@ -1,7 +1,7 @@
 import pytest
 from mkdocs.config import config_options
 
-from argref.main import AutoLinkOption
+from mkdocs_argref_plugin.argref import AutoLinkOption
 
 
 def test_missing_variable_in_target_url_sing():

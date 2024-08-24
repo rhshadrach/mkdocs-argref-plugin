@@ -1,23 +1,20 @@
 [project]
 name = "mkdocs-argref-plugin"
-description = "This plugin allows to configure your own autolink references for URLs."
+description = "MkDocs plugin to replace argumented refrences with markdown links."
 authors = [
     { name = "Saurabh Kumar", email = "autolink-references-mkdocs-plugin@saurabh-kumar.com" },
     { name = "Richard Shadrach", email = "rhshadrach@gmail.com" },
 ]
-readme = "README.md"
-license = "MIT"
-requires-python = ">= 3.8"
-dynamic = ["version"]
-dependencies = ["mkdocs"]
-
 keywords = [
     'autolinks',
     'mkdocs',
-    'regex',
     'github',
 ]
-
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">= 3.8"
+dynamic = ["version"]
+dependencies = ["mkdocs"]
 classifiers=[
     'Development Status :: 4 - Beta',
     'Programming Language :: Python',
@@ -33,6 +30,9 @@ classifiers=[
     'Topic :: Utilities',
 ]
 
+[tool.setuptools.dynamic]
+version = {file = "mkdocs_argref_plugin/VERSION"}
+
 [project.entry-points."mkdocs.plugins"]
 "argref" = "argref:AutolinkReference"
 
@@ -42,30 +42,13 @@ Source = "https://github.com/rhshadrach/mkdocs-argref-plugin"
 Tracker = "https://github.com/rhshadrach/mkdocs-argref-plugin/issues"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.rye]
-managed = true
-dev-dependencies = [
-    "pytest~=7.3.2",
-    "ruff~=0.0.272",
-    "hatch~=1.7.0",
-]
-
-[tool.hatch.metadata]
-allow-direct-references = true
-
-[tool.hatch.build.targets.sdist]
-include = [
-  "/src",
-]
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/argref"]
-
-[tool.hatch.version]
-path = "src/argref/__about__.py"
+[project.optional-dependencies]
+lint = ["pre-commit"]
+test = ["pytest"]
+dev = ["mkdocs_argref_plugin[lint, test]"]
 
 [tool.ruff.lint]
 # Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
