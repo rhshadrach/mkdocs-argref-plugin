@@ -1,16 +1,38 @@
 name: Test
-on: [push]
+on:
+  pull_request:
+    branches:
+      - main
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        os: [ macos-latest, windows-latest, ubuntu-latest ]
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+    concurrency:
+      group: tests-${{ github.event_name == 'push' && github.run_number || github.ref }}-${{ matrix.os }}-${{ matrix.python-version }}
+      cancel-in-progress: true
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    - uses: sksat/setup-rye@v0.23.1
-    - run: make install
-    - run: make test
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Upgrade pip
+        run: pip install --upgrade pip wheel
+
+      - name: Install dependencies
+        run: pip install .[test]
+
+      - name: Show versions
+        run: pip freeze
+
+      - name: Test
+        run: pytest
