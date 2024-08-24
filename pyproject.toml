@@ -66,3 +66,36 @@ packages = ["src/argref"]
 
 [tool.hatch.version]
 path = "src/argref/__about__.py"
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# McCabe complexity (`C901`) by default.
+select = [
+    "A",   # flake8-builtins
+    # "ANN", # flake8-annotations
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    # "D",   # pydocstyle
+    "DOC", # pydoclint
+    "E",   # pycodestyle - error
+    "F",   # Pyflakes
+    "FA",  # flake8-future-annotations
+    # "FBT", # flake8-boolean-trap
+    "G",   # flake8-logging-format
+    "I",   # isort
+    "INP", # flake8-no-pep420
+    "ISC", # flake8-implicit-str-concat
+    "LOG", # flake8-logging
+    "N",   # pep8-naming
+    "PERF", # Perflint
+    "PIE", # flake8-pie
+    "PL",  # Pylint
+    "Q",   # flake8-quotes
+    "RUF", # Ruff-specific rules
+    "SIM", # flake8-simplify
+    "T20", # flake8-print
+    "UP",  # pyupgrade
+    "W",   # pycodestyle - warning
+    "YTT", # flake8-2020
+]
