@@ -17,7 +17,7 @@ dynamic = ["version"]
 dependencies = ["mkdocs"]
 
 [tool.setuptools.dynamic]
-version = {file = "pytest_ndb/VERSION"}
+version = {file = "mkdocs_argref_plugin/VERSION"}
 
 classifiers=[
     'Development Status :: 4 - Beta',
