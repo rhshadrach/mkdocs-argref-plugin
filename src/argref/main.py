@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import logging
 import re
-from mkdocs.plugins import BasePlugin
-from mkdocs.config import config_options
 
+from mkdocs.config import config_options
+from mkdocs.plugins import BasePlugin
 
 log = logging.getLogger("mkdocs.plugins.argref")
 
@@ -59,14 +59,9 @@ class MarkdownAutoLinker:
         return result
 
 
-def replace_autolink_references(markdown, ref_prefix, target_url, skip_links: bool):
-    autolinker = MarkdownAutoLinker(ref_prefix, target_url)
-    if autolinker.has_reference(markdown):
-        markdown = autolinker.replace_all_references(markdown, skip_links)
-    return markdown
-
-
-def replace_autolink_references(markdown: str, autolinks: list[tuple[str, str]], skip_links: bool):
+def replace_autolink_references(
+    markdown: str, autolinks: list[tuple[str, str]], skip_links: bool
+):
     result = markdown
     for ref_prefix, target_url in autolinks:
         autolinker = MarkdownAutoLinker(ref_prefix, target_url)
@@ -93,7 +88,9 @@ class AutoLinkOption(config_options.OptionallyRequired):
                 variables = ["<num>"]
                 autolink["reference_prefix"] += "<num>"
             if not all(v in autolink["target_url"] for v in variables):
-                raise config_options.ValidationError("All variables must be used in 'target_url'")
+                raise config_options.ValidationError(
+                    "All variables must be used in 'target_url'"
+                )
         return values
 
 
@@ -106,7 +103,9 @@ class AutolinkReference(BasePlugin):
 
     def on_pre_build(self, config, **kwargs) -> None:
         for autolink in self.config["autolinks"]:
-            self.autolinks.append((autolink["reference_prefix"], autolink["target_url"]))
+            self.autolinks.append(
+                (autolink["reference_prefix"], autolink["target_url"])
+            )
 
     def on_page_markdown(self, markdown, **kwargs):
         """
