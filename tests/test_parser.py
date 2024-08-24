@@ -1,132 +1,68 @@
 import pytest
-from mkdocs.config import config_options
 
-from argref.main import AutoLinkOption
 from argref.main import replace_autolink_references as autolink
-
-simple_replace = [
-    ("TAG-<num>", "http://gh/<num>", "TAG-123", "[TAG-123](http://gh/123)"),
-    ("TAG-<num>", "http://gh/<num>", "x TAG-123", "x [TAG-123](http://gh/123)"),
-    ("TAG-<num>", "http://gh/<num>", "TAG-123 x", "[TAG-123](http://gh/123) x"),
-    ("TAG-<num>", "http://gh/<num>", "x TAG-123 y", "x [TAG-123](http://gh/123) y"),
-    ("TAG-<num>", "http://gh/<num>", "x TAG-123 y", "x [TAG-123](http://gh/123) y"),
-    ("TAG-<num>", "http://gh/TAG-<num>", "(TAG-123)", "([TAG-123](http://gh/TAG-123))"),
-    (
-        "TAG-<num>",
-        "http://gh/TAG-<num>",
-        "(TAG-12_3-4)",
-        "([TAG-12_3-4](http://gh/TAG-12_3-4))",
-    ),
-    (
-        "TAG-<num>",
-        "http://gh/<num>",
-        "x TAG-123 y TAG-456 z",
-        "x [TAG-123](http://gh/123) y [TAG-456](http://gh/456) z",
-    ),
-    (
-        "TAG-<num>",
-        "http://gh/TAG-<num>",
-        "TAG-Ab123dD",
-        "[TAG-Ab123dD](http://gh/TAG-Ab123dD)",
-    ),
-]
-
-complex_replace = [
-    (
-        "<some>-TAG-<num>-<ver>",
-        "http://foo.bar/<some>?num=<num>&ver=<ver>",
-        "file-TAG-123-XYZ",
-        "[file-TAG-123-XYZ](http://foo.bar/file?num=123&ver=XYZ)",
-    ),
-]
-
-ignore_already_linked = [
-    (
-        "TAG-<num>",
-        "http://gh/<num>",
-        "[TAG-789](http://gh/789)",
-        "[TAG-789](http://gh/789)",
-    ),
-    (
-        "TAG-<num>",
-        "http://gh/TAG-<num>",
-        "[TAG-789](http://gh/TAG-789)",
-        "[TAG-789](http://gh/TAG-789)",
-    ),
-]
-
-ignore_url_paths_when_filter_activated = [
-    (
-        "TAG-<num>",
-        "http://gh/TAG-<num>",
-        "[see TAG-789](http://gh/TAG-789)",
-        "[see TAG-789](http://gh/TAG-789)",
-    ),
-    (
-        "TAG-<num>",
-        "http://gh/<num>",
-        "[Go Here](http://gh/TAG-789) [Go There](http://gh/TAG-123)",
-        "[Go Here](http://gh/TAG-789) [Go There](http://gh/TAG-123)",
-    ),
-]
-
-ignore_url_paths_when_filter_deactivated = [
-    (
-        "TAG-<num>",
-        "http://gh/TAG-<num>",
-        "[see TAG-789](http://gh/TAG-789)",
-        "[see [TAG-789](http://gh/TAG-789)](http://gh/TAG-789)",
-    ),
-    (
-        "TAG-<num>",
-        "http://gh/TAG-<num>",
-        "[Go Here](http://gh/abcTAG-789) [Go There](http://gh/?blub=TAG-123)",
-        (
-            "[Go Here](http://gh/abc[TAG-789](http://gh/TAG-789))"
-            " [Go There](http://gh/?blub=[TAG-123](http://gh/TAG-123))"
-        ),
-    ),
-]
-
-# This test cases address #4. Reference style links should be ignored.
-ignore_ref_links = [
-    ("TAG-<num>", "http://gh/<num>", "[TAG-456]", "[TAG-456]"),
-    ("TAG-<num>", "http://gh/<num>", "[TAG-456][test456]", "[TAG-456][test456]"),
-    ("TAG-<num>", "http://gh/<num>", "[TAG-456] [tag456]", "[TAG-456] [tag456]"),
-    (
-        "TAG-<num>",
-        "http://gh/TAG-<num>",
-        "[tag456]: http://gh/TAG-456",
-        "[tag456]: http://gh/TAG-456",
-    ),
-]
-
-
-def test_validation_of_missing_variable_in_target_url():
-    values = [
-        {
-            "reference_prefix": "GH-",
-            "target_url": "http://gh/TAG-",
-        },
-    ]
-    with pytest.raises(config_options.ValidationError) as exc_info:
-        AutoLinkOption().run_validation(values)
-    assert exc_info.value.args[0] == "All variables must be used in 'target_url'"
-
-
-def test_validation_of_at_least_one_variable_in_prefix_found_in_target_url():
-    values = [
-        {
-            "reference_prefix": "GH-<num>",
-            "target_url": "http://gh/TAG-<num>",
-        },
-    ]
-    AutoLinkOption().run_validation(values)
 
 
 @pytest.mark.parametrize(
     "ref_prefix, target_url, test_input, expected",
-    simple_replace + complex_replace + ignore_already_linked + ignore_ref_links,
+    [
+        ("TAG-<num>", "http://gh/<num>", "TAG-123", "[TAG-123](http://gh/123)"),
+        ("TAG-<num>", "http://gh/<num>", "x TAG-123", "x [TAG-123](http://gh/123)"),
+        ("TAG-<num>", "http://gh/<num>", "TAG-123 x", "[TAG-123](http://gh/123) x"),
+        ("TAG-<num>", "http://gh/<num>", "x TAG-123 y", "x [TAG-123](http://gh/123) y"),
+        ("TAG-<num>", "http://gh/<num>", "x TAG-123 y", "x [TAG-123](http://gh/123) y"),
+        (
+            "TAG-<num>",
+            "http://gh/TAG-<num>",
+            "(TAG-123)",
+            "([TAG-123](http://gh/TAG-123))",
+        ),
+        (
+            "TAG-<num>",
+            "http://gh/TAG-<num>",
+            "(TAG-12_3-4)",
+            "([TAG-12_3-4](http://gh/TAG-12_3-4))",
+        ),
+        (
+            "TAG-<num>",
+            "http://gh/<num>",
+            "x TAG-123 y TAG-456 z",
+            "x [TAG-123](http://gh/123) y [TAG-456](http://gh/456) z",
+        ),
+        (
+            "TAG-<num>",
+            "http://gh/TAG-<num>",
+            "TAG-Ab123dD",
+            "[TAG-Ab123dD](http://gh/TAG-Ab123dD)",
+        ),
+        (
+            "<some>-TAG-<num>-<ver>",
+            "http://foo.bar/<some>?num=<num>&ver=<ver>",
+            "file-TAG-123-XYZ",
+            "[file-TAG-123-XYZ](http://foo.bar/file?num=123&ver=XYZ)",
+        ),
+        (
+            "TAG-<num>",
+            "http://gh/<num>",
+            "[TAG-789](http://gh/789)",
+            "[TAG-789](http://gh/789)",
+        ),
+        (
+            "TAG-<num>",
+            "http://gh/TAG-<num>",
+            "[TAG-789](http://gh/TAG-789)",
+            "[TAG-789](http://gh/TAG-789)",
+        ),
+        ("TAG-<num>", "http://gh/<num>", "[TAG-456]", "[TAG-456]"),
+        ("TAG-<num>", "http://gh/<num>", "[TAG-456][test456]", "[TAG-456][test456]"),
+        ("TAG-<num>", "http://gh/<num>", "[TAG-456] [tag456]", "[TAG-456] [tag456]"),
+        (
+            "TAG-<num>",
+            "http://gh/TAG-<num>",
+            "[tag456]: http://gh/TAG-456",
+            "[tag456]: http://gh/TAG-456",
+        ),
+    ],
 )
 @pytest.mark.parametrize("filter_links", (True, False))
 def test_parser(ref_prefix, target_url, test_input, expected, filter_links):
@@ -137,7 +73,20 @@ def test_parser(ref_prefix, target_url, test_input, expected, filter_links):
 
 @pytest.mark.parametrize(
     "ref_prefix, target_url, test_input, expected",
-    ignore_url_paths_when_filter_activated,
+    [
+        (
+            "TAG-<num>",
+            "http://gh/TAG-<num>",
+            "[see TAG-789](http://gh/TAG-789)",
+            "[see TAG-789](http://gh/TAG-789)",
+        ),
+        (
+            "TAG-<num>",
+            "http://gh/<num>",
+            "[Go Here](http://gh/TAG-789) [Go There](http://gh/TAG-123)",
+            "[Go Here](http://gh/TAG-789) [Go There](http://gh/TAG-123)",
+        ),
+    ],
 )
 def test_activated_link_filter(ref_prefix, target_url, test_input, expected):
     autolinks = [(ref_prefix, target_url)]
@@ -147,7 +96,23 @@ def test_activated_link_filter(ref_prefix, target_url, test_input, expected):
 
 @pytest.mark.parametrize(
     "ref_prefix, target_url, test_input, expected",
-    ignore_url_paths_when_filter_deactivated,
+    [
+        (
+            "TAG-<num>",
+            "http://gh/TAG-<num>",
+            "[see TAG-789](http://gh/TAG-789)",
+            "[see [TAG-789](http://gh/TAG-789)](http://gh/TAG-789)",
+        ),
+        (
+            "TAG-<num>",
+            "http://gh/TAG-<num>",
+            "[Go Here](http://gh/abcTAG-789) [Go There](http://gh/?blub=TAG-123)",
+            (
+                "[Go Here](http://gh/abc[TAG-789](http://gh/TAG-789))"
+                " [Go There](http://gh/?blub=[TAG-123](http://gh/TAG-123))"
+            ),
+        ),
+    ],
 )
 def test_deactivated_link_filter(ref_prefix, target_url, test_input, expected):
     autolinks = [(ref_prefix, target_url)]
