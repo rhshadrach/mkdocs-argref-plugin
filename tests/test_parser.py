@@ -127,7 +127,8 @@ def test_validation_of_at_least_one_variable_in_prefix_found_in_target_url():
 )
 @pytest.mark.parametrize("filter_links", (True, False))
 def test_parser(ref_prefix, target_url, test_input, expected, filter_links):
-    result = autolink(test_input, ref_prefix, target_url, skip_links=True)
+    autolinks = [(ref_prefix, target_url)]
+    result = autolink(test_input, autolinks, skip_links=True)
     assert result == expected
 
 
@@ -136,7 +137,8 @@ def test_parser(ref_prefix, target_url, test_input, expected, filter_links):
     ignore_url_paths_when_filter_activated,
 )
 def test_activated_link_filter(ref_prefix, target_url, test_input, expected):
-    result = autolink(test_input, ref_prefix, target_url, skip_links=True)
+    autolinks = [(ref_prefix, target_url)]
+    result = autolink(test_input, autolinks, skip_links=True)
     assert result == expected
 
 
@@ -145,7 +147,8 @@ def test_activated_link_filter(ref_prefix, target_url, test_input, expected):
     ignore_url_paths_when_filter_deactivated,
 )
 def test_deactivated_link_filter(ref_prefix, target_url, test_input, expected):
-    result = autolink(test_input, ref_prefix, target_url, skip_links=False)
+    autolinks = [(ref_prefix, target_url)]
+    result = autolink(test_input, autolinks, skip_links=False)
     assert result == expected
 
 
@@ -155,7 +158,8 @@ def test_with_attr_list(skip_links):
     expected = "## Feature 1 { #F-001 .class-feature }"
     ref_prefix = "F-<num>"
     target_url = "http://gh/<num>"
-    result = autolink(markdown, ref_prefix, target_url, skip_links=skip_links)
+    autolinks = [(ref_prefix, target_url)]
+    result = autolink(markdown, autolinks, skip_links=skip_links)
     assert result == expected
 
 
@@ -164,6 +168,30 @@ def test_multi_replace(skip_links):
     ref_prefix = "TAG-<num>"
     target_url = "http://gh/<num>"
     markdown = "TAG-1 TAG-1 TAG-1"
+    autolinks = [(ref_prefix, target_url)]
     expected = "[TAG-1](http://gh/1) [TAG-1](http://gh/1) [TAG-1](http://gh/1)"
-    result = autolink(markdown, ref_prefix, target_url, skip_links=skip_links)
+    result = autolink(markdown, autolinks, skip_links=skip_links)
+    assert result == expected
+
+
+@pytest.mark.parametrize("skip_links", (True, False))
+def test_multiple_patterns(skip_links):
+    markdown = "TAG-1-X TAG-1 TAG-1-Y"
+    autolinks = [
+        ("TAG-<num>-<version>", "http://gh.com?doc=TAG-<num>&version=<version>"),
+        ("TAG-<num>", "http://gh.com?doc=TAG-<num>"),
+    ]
+    if skip_links:
+        expected = (
+            "[TAG-1-X](http://gh.com?doc=TAG-1&version=X)"
+            " [TAG-1](http://gh.com?doc=TAG-1)"
+            " [TAG-1-Y](http://gh.com?doc=TAG-1&version=Y)"
+        )
+    else:
+        expected = (
+            "[TAG-1-X](http://gh.com?doc=[TAG-1](http://gh.com?doc=TAG-1)&version=X)"
+            " [TAG-1](http://gh.com?doc=TAG-1)"
+            " [TAG-1-Y](http://gh.com?doc=[TAG-1](http://gh.com?doc=TAG-1)&version=Y)"
+        )
+    result = autolink(markdown, autolinks, skip_links=skip_links)
     assert result == expected

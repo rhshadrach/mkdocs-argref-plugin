@@ -51,6 +51,8 @@ class MarkdownAutoLinker:
                 buf.append(re.sub(self.find_pattern, self.replace_pattern, piece) + url)
             result = "".join(buf)
         else:
+            print(markdown)
+            print(self.find_pattern)
             result = re.sub(self.find_pattern, self.replace_pattern, markdown)
         return result
 
@@ -60,6 +62,15 @@ def replace_autolink_references(markdown, ref_prefix, target_url, skip_links: bo
     if autolinker.has_reference(markdown):
         markdown = autolinker.replace_all_references(markdown, skip_links)
     return markdown
+
+
+def replace_autolink_references(markdown: str, autolinks: list[tuple[str, str]], skip_links: bool):
+    result = markdown
+    for ref_prefix, target_url in autolinks:
+        autolinker = MarkdownAutoLinker(ref_prefix, target_url)
+        if autolinker.has_reference(result):
+            result = autolinker.replace_all_references(result, skip_links)
+    return result
 
 
 class AutoLinkOption(config_options.OptionallyRequired):
@@ -89,6 +100,11 @@ class AutolinkReference(BasePlugin):
         ("autolinks", AutoLinkOption(required=True)),
         ("filter_links", config_options.Type(bool, default=False)),
     )
+    autolinks: list[tuple[str, str]] = []
+
+    def on_pre_build(self, config, **kwargs) -> None:
+        for autolink in self.config["autolinks"]:
+            self.autolinks.append((autolink["reference_prefix"], autolink["target_url"]))
 
     def on_page_markdown(self, markdown, **kwargs):
         """
@@ -100,11 +116,9 @@ class AutolinkReference(BasePlugin):
         :param kwargs: Other parameters (won't be used here)
         :return: Modified markdown
         """
-        for autolink in self.config["autolinks"]:
-            markdown = replace_autolink_references(
-                markdown,
-                autolink["reference_prefix"],
-                autolink["target_url"],
-                skip_links=self.config.get("filter_links", False),
-            )
-        return markdown
+        result = replace_autolink_references(
+            markdown,
+            self.autolinks,
+            skip_links=self.config.get("filter_links", False),
+        )
+        return result
