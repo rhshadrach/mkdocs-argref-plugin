@@ -3,7 +3,7 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/mkdocs-argref-plugin)](https://pypi.org/project/mkdocs-argref-plugin/)
 
 This [mkdocs plugin](http://www.mkdocs.org/user-guide/plugins/)
-allows users to convert text such as `GHI-123` in their documentation to a 
+allows users to convert text such as `GHI-123` in their documentation to a
 corresponding URL, e.g. `https://github.com/myproject/issues/123`. Unlike similar
 plugins, `argref` takes an argument for each reference that can be utilized
 in the URL.

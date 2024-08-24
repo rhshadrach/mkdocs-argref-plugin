@@ -1,8 +1,8 @@
 import pytest
-
-from argref.main import AutoLinkOption, replace_autolink_references as autolink
-
 from mkdocs.config import config_options
+
+from argref.main import AutoLinkOption
+from argref.main import replace_autolink_references as autolink
 
 simple_replace = [
     ("TAG-<num>", "http://gh/<num>", "TAG-123", "[TAG-123](http://gh/123)"),
@@ -81,7 +81,10 @@ ignore_url_paths_when_filter_deactivated = [
         "TAG-<num>",
         "http://gh/TAG-<num>",
         "[Go Here](http://gh/abcTAG-789) [Go There](http://gh/?blub=TAG-123)",
-        "[Go Here](http://gh/abc[TAG-789](http://gh/TAG-789)) [Go There](http://gh/?blub=[TAG-123](http://gh/TAG-123))",
+        (
+            "[Go Here](http://gh/abc[TAG-789](http://gh/TAG-789))"
+            " [Go There](http://gh/?blub=[TAG-123](http://gh/TAG-123))"
+        ),
     ),
 ]
 
