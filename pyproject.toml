@@ -15,10 +15,6 @@ license = {file = "LICENSE"}
 requires-python = ">= 3.8"
 dynamic = ["version"]
 dependencies = ["mkdocs"]
-
-[tool.setuptools.dynamic]
-version = {file = "mkdocs_argref_plugin/VERSION"}
-
 classifiers=[
     'Development Status :: 4 - Beta',
     'Programming Language :: Python',
@@ -33,6 +29,9 @@ classifiers=[
     'Operating System :: OS Independent',
     'Topic :: Utilities',
 ]
+
+[tool.setuptools.dynamic]
+version = {file = "mkdocs_argref_plugin/VERSION"}
 
 [project.entry-points."mkdocs.plugins"]
 "argref" = "argref:AutolinkReference"
