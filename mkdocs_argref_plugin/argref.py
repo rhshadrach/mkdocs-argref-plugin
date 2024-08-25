@@ -7,7 +7,7 @@ from typing import ClassVar
 from mkdocs.config import config_options
 from mkdocs.plugins import BasePlugin
 
-log = logging.getLogger("mkdocs.plugins.argref")
+log = logging.getLogger("mkdocs.plugins.mkdocs_argref_plugin")
 
 # Regex capture group marker used for the full reference, e.g. `GH-123`
 FULL_REF_TAG = "__ARGREF_ORIGINAL_TEXT__"
