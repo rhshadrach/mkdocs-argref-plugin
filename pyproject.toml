@@ -31,7 +31,7 @@ classifiers=[
 ]
 
 [tool.setuptools.dynamic]
-version = {file = "argref/VERSION"}
+version = {file = "mkdocs_argref_plugin/VERSION"}
 
 [project.entry-points."mkdocs.plugins"]
 "argref" = "mkdocs_argref_plugin:AutolinkReference"
