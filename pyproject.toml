@@ -1,5 +1,5 @@
 [project]
-name = "mkdocs-argref-plugin"
+name = "argref"
 description = "MkDocs plugin to replace argumented refrences with markdown links."
 authors = [
     { name = "Saurabh Kumar", email = "autolink-references-mkdocs-plugin@saurabh-kumar.com" },
@@ -31,7 +31,7 @@ classifiers=[
 ]
 
 [tool.setuptools.dynamic]
-version = {file = "mkdocs_argref_plugin/VERSION"}
+version = {file = "argref/VERSION"}
 
 [project.entry-points."mkdocs.plugins"]
 "argref" = "argref:AutolinkReference"
