@@ -1,6 +1,6 @@
 import importlib.metadata
 
-from argref.argref import AutolinkReference
+from mkdocs_argref_plugin.argref import AutolinkReference
 
 __version__ = importlib.metadata.version("mkdocs_argref_plugin")
 
