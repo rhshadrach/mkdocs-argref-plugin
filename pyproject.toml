@@ -1,5 +1,5 @@
 [project]
-name = "argref"
+name = "mkdocs-argref-plugin"
 description = "MkDocs plugin to replace argumented refrences with markdown links."
 authors = [
     { name = "Saurabh Kumar", email = "autolink-references-mkdocs-plugin@saurabh-kumar.com" },
@@ -34,7 +34,7 @@ classifiers=[
 version = {file = "argref/VERSION"}
 
 [project.entry-points."mkdocs.plugins"]
-"argref" = "argref:AutolinkReference"
+"argref" = "mkdocs_argref_plugin:AutolinkReference"
 
 [project.urls]
 Documentation = "https://github.com/rhshadrach/mkdocs-argref-plugin/tree/main#readme"
