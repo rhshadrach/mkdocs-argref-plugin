@@ -58,9 +58,13 @@ Changelog:
 
 ## Changelog
 
+### 0.5.0 (2024-08-25)
+
+- Fix bug when `filter_links=True` and multiple autolinks are specified.
+
 ### 0.4.0 (2024-08-13)
 
-- Added ability to use multiple references for each link.
+- Added ability to use multiple references for each link and skip replacements within links.
 
 ### 0.3.0 (2024-06-07)
 

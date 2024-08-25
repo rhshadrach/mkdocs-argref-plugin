@@ -1,6 +1,6 @@
 import pytest
 
-from mkdocs_argref_plugin.argref import replace_autolink_references as autolink
+from argref.argref import replace_autolink_references as autolink
 
 
 @pytest.mark.parametrize(
